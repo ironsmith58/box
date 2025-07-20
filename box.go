@@ -16,12 +16,17 @@ type BoxType struct {
 }
 
 var Boxes = map[string]BoxType{
-	"single": {"┌", "┐", "└", "┘", "│", "│", "─", "─"},
-	"double": {"╔", "╗", "╚", "╝", "║", "║", "═", "═"},
-	"round":  {"╭", "╮", "╰", "╯", "│", "│", "─", "─"},
-	"bold":   {"┏", "┓", "┗", "┛", "┃", "┃", "━", "━"},
-	"shadow": {"┌", "┐", "└", "┘", "│", "│", "─", "─"},
-	"simple": {".-", "-.", "`-", "-`", "|", "|", "-", "-"},
+	"single":      {"┌", "┐", "└", "┘", "│", "│", "─", "─"},
+	"double":      {"╔", "╗", "╚", "╝", "║", "║", "═", "═"},
+	"round":       {"╭", "╮", "╰", "╯", "│", "│", "─", "─"},
+	"bold":        {"┏", "┓", "┗", "┛", "┃", "┃", "━", "━"},
+	"shadow":      {"┌", "┐", "└", "┘", "│", "│", "─", "─"},
+	"simple":      {".-", "-.", "`-", "-`", "|", "|", "-", "-"},
+	"triple":      {"╓", "╖", "╙", "╜", "║", "║", "═", "═"}, // Triple line corners
+	"block":       {"█", "█", "█", "█", "█", "█", "█", "█"}, // Full block
+	"dotted":      {"┈", "┈", "┈", "┈", "┊", "┊", "┈", "┈"}, // Dotted lines
+	"dash":        {"┄", "┄", "┄", "┄", "┆", "┆", "┄", "┄"}, // Dashed lines
+	"double-dash": {"╌", "╌", "╌", "╌", "╎", "╎", "╌", "╌"}, // Double dashed
 }
 
 var verbose = getopt.BoolLong("verbose", 'v', "Print more information")
@@ -30,23 +35,42 @@ var boxTypeName = getopt.StringLong("box", 'b', "single", "Select box type by na
 
 // wrapInBox returns a slice of strings representing the input lines wrapped in a box.
 // It calculates the maximum line length, expands each line to fit, and adds borders.
+// Handles multi-character corners and sides for proper alignment.
 func wrapInBox(lines []string, boxType BoxType) []string {
+	// Determine the width of each border character
+	leftCornerLen := len([]rune(boxType.topleft))
+	rightCornerLen := len([]rune(boxType.topright))
+	leftSideLen := len([]rune(boxType.leftside))
+	rightSideLen := len([]rune(boxType.rightside))
+
+	// Calculate the maximum line length
 	maxLen := 0
 	for _, line := range lines {
 		if len(line) > maxLen {
 			maxLen = len(line)
 		}
 	}
+
 	var boxed []string
 	// Top border
-	boxed = append(boxed, boxType.topleft+strings.Repeat(boxType.topside, maxLen+2)+boxType.topright)
+	top := boxType.topleft +
+		strings.Repeat(boxType.topside, maxLen+leftSideLen+rightSideLen) +
+		boxType.topright
+	boxed = append(boxed, top)
+
 	// Content lines
 	for _, line := range lines {
 		padding := maxLen - len(line)
-		boxed = append(boxed, boxType.leftside+" "+line+strings.Repeat(" ", padding)+" "+boxType.rightside)
+		content := boxType.leftside + strings.Repeat(" ", leftCornerLen) + line + strings.Repeat(" ", padding) + strings.Repeat(" ", rightCornerLen) + boxType.rightside
+		boxed = append(boxed, content)
 	}
+
 	// Bottom border
-	boxed = append(boxed, boxType.botleft+strings.Repeat(boxType.botside, maxLen+2)+boxType.botright)
+	bottom := boxType.botleft +
+		strings.Repeat(boxType.botside, maxLen+leftSideLen+rightSideLen) +
+		boxType.botright
+	boxed = append(boxed, bottom)
+
 	return boxed
 }
 
