@@ -10,6 +10,7 @@ import (
 	"github.com/pborman/getopt/v2"
 )
 
+// BoxType defines the characters used for each part of a box.
 type BoxType struct {
 	topleft, topright, botleft, botright, leftside, rightside, topside, botside string
 }
@@ -27,6 +28,8 @@ var verbose = getopt.BoolLong("verbose", 'v', "Print more information")
 var listBoxTypes = getopt.BoolLong("list", 'l', "List all available box types")
 var boxTypeName = getopt.StringLong("box", 'b', "single", "Select box type by name")
 
+// wrapInBox returns a slice of strings representing the input lines wrapped in a box.
+// It calculates the maximum line length, expands each line to fit, and adds borders.
 func wrapInBox(lines []string, boxType BoxType) []string {
 	maxLen := 0
 	for _, line := range lines {
@@ -47,6 +50,8 @@ func wrapInBox(lines []string, boxType BoxType) []string {
 	return boxed
 }
 
+// expandTabs replaces tab characters in a string with spaces up to the next tab stop.
+// This ensures consistent alignment for tabbed text.
 func expandTabs(line string, tabstop int) string {
 	var result strings.Builder
 	col := 0
@@ -64,6 +69,8 @@ func expandTabs(line string, tabstop int) string {
 	return result.String()
 }
 
+// main parses command-line options, reads input, wraps it in a box, and prints the result.
+// It supports selecting box types, listing available types, and verbose output.
 func main() {
 	getopt.Parse()
 
