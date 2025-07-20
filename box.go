@@ -26,12 +26,12 @@ var Boxes = map[string]BoxType{
 	"block":       {"█", "█", "█", "█", "█", "█", "█", "█"}, // Full block
 	"dotted":      {"┈", "┈", "┈", "┈", "┊", "┊", "┈", "┈"}, // Dotted lines
 	"dash":        {"┄", "┄", "┄", "┄", "┆", "┆", "┄", "┄"}, // Dashed lines
-	"double-dash": {"╌", "╌", "╌", "╌", "╎", "╎", "╌", "╌"}, // Double dashed
 }
 
 var verbose = getopt.BoolLong("verbose", 'v', "Print more information")
 var listBoxTypes = getopt.BoolLong("list", 'l', "List all available box types")
 var boxTypeName = getopt.StringLong("box", 'b', "single", "Select box type by name")
+var indentBy = getopt.IntLong("indent", 'i', 0, "Indent box by N spaces")
 
 // wrapInBox returns a slice of strings representing the input lines wrapped in a box.
 // It calculates the maximum line length, expands each line to fit, and adds borders.
@@ -141,8 +141,9 @@ func main() {
 		os.Exit(1)
 	}
 
+	indent := strings.Repeat(" ", *indentBy)
 	boxed := wrapInBox(lines, boxType)
 	for _, line := range boxed {
-		fmt.Println(line)
+		fmt.Println(indent,line)
 	}
 }
