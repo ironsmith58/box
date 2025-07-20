@@ -113,7 +113,8 @@ func main() {
 	if t, ok := Boxes[*boxTypeName]; ok {
 		boxType = t
 	} else if *boxTypeName != "single" {
-		fmt.Fprintf(os.Stderr, "Unknown box type: %s, using 'single'\n", *boxTypeName)
+		fmt.Fprintf(os.Stderr, "Unknown box type: %s\n", *boxTypeName)
+		os.Exit(1)
 	}
 
 	boxed := wrapInBox(lines, boxType)
